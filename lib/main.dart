@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     Timer(
-        Duration(seconds: 4),
+        Duration(seconds: 100),
         () => Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => SecondScreen())));
   }
@@ -151,13 +151,25 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Center(
         child: Column(
-          //  mainAxisAlignment: MainAxisAlignment.end,
-          // crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Image(image: AssetImage("logo.png")),
-            SizedBox(height: 40),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * .10,
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(0, 0, 140, 0),
+              child: Image(
+                image: AssetImage("images/logo.png"),
+                height: MediaQuery.of(context).size.height * .50,
+                width: MediaQuery.of(context).size.width * .75,
+              ),
+            ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height * .10,
+            ),
             Text(
-              "Powered by THEWATCHTOWER",
+              "Powered by The Watchtower",
               style: TextStyle(
                   color: Color(0xFFE9442B), fontWeight: FontWeight.bold),
             ),
