@@ -188,8 +188,10 @@ class SecondScreen extends StatefulWidget {
 class _SecondScreenState extends State<SecondScreen> {
   @override
   Widget build(BuildContext context) {
-    return InAppWebView(
-      initialUrlRequest: URLRequest(url: Uri.parse(webViewInitUrl)),
+    return SafeArea(
+      child: InAppWebView(
+        initialUrlRequest: URLRequest(url: Uri.parse(webViewInitUrl)),
+      ),
     );
   }
 }
