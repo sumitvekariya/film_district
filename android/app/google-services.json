@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "511191760058",
+    "project_id": "filmdistrictdxb-15c3b",
+    "storage_bucket": "filmdistrictdxb-15c3b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:511191760058:android:38dddf152ed5dfdbfc1683",
+        "android_client_info": {
+          "package_name": "com.watchtower.film_district"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "511191760058-crlkpanv2bccjpqjl67jvv1p2lvg4kh2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAi113wh9_jwbmxlKrxbdQN3S9tfRKqcts"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "511191760058-crlkpanv2bccjpqjl67jvv1p2lvg4kh2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

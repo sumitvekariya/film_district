@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.film_district">
+    package="com.watchtower.film_district">
    <application
         android:label="film_district"
         android:icon="@mipmap/ic_launcher">
