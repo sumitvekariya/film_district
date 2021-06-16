@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:film_district/constants/const.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -137,8 +139,41 @@ class _MyHomePageState extends State<MyHomePage> {
       // Navigator.pushNamed(context, '/message',
       //     arguments: MessageArguments(message, true));
     });
+
+    Timer(
+        Duration(seconds: 4),
+        () => Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => SecondScreen())));
   }
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          //  mainAxisAlignment: MainAxisAlignment.end,
+          // crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image(image: AssetImage("logo.png")),
+            SizedBox(height: 40),
+            Text(
+              "Powered by THEWATCHTOWER",
+              style: TextStyle(
+                  color: Color(0xFFE9442B), fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SecondScreen extends StatefulWidget {
+  @override
+  _SecondScreenState createState() => _SecondScreenState();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
   @override
   Widget build(BuildContext context) {
     return InAppWebView(
