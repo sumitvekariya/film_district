@@ -141,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     Timer(
-        Duration(seconds: 100),
+        Duration(seconds: 4),
         () => Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => SecondScreen())));
   }
@@ -158,11 +158,11 @@ class _MyHomePageState extends State<MyHomePage> {
               height: MediaQuery.of(context).size.height * .10,
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 140, 0),
+              margin: EdgeInsets.fromLTRB(0, 0, 100, 0),
               child: Image(
                 image: AssetImage("images/logo.png"),
                 height: MediaQuery.of(context).size.height * .50,
-                width: MediaQuery.of(context).size.width * .75,
+                width: MediaQuery.of(context).size.width * .55,
               ),
             ),
             SizedBox(
