@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
@@ -47,6 +49,40 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(Duration(seconds: 4),
+        () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SecondScreen())));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          //  mainAxisAlignment: MainAxisAlignment.end,
+          // crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Image(image: AssetImage("logo.png")),
+            SizedBox(height: 40),
+            Text(
+              "Powered by THEWATCHTOWER",
+              style: TextStyle(color: Color(0xFFE9442B), fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SecondScreen extends StatefulWidget {
+  @override
+  _SecondScreenState createState() => _SecondScreenState();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
   int _counter = 0;
 
   void _incrementCounter() {
@@ -69,9 +105,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
     return InAppWebView(
-      initialUrlRequest: URLRequest(
-          url: Uri.parse(
-              "https://www.filmdistrictdubai.com/photography-equipments-rental")),
+      initialUrlRequest: URLRequest(url: Uri.parse("https://www.filmdistrictdubai.com/photography-equipments-rental")),
     );
   }
 }
