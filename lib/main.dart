@@ -159,11 +159,11 @@ class _MyHomePageState extends State<MyHomePage> {
               height: MediaQuery.of(context).size.height * .10,
             ),
             Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 100, 0),
+              margin: EdgeInsets.fromLTRB(0, 0, 40, 0),
               child: Image(
-                image: AssetImage("images/logo.png"),
-                height: MediaQuery.of(context).size.height * .50,
-                width: MediaQuery.of(context).size.width * .55,
+                image: AssetImage("images/fdd-rental-email-logo.png"),
+                // height: MediaQuery.of(context).size.height * .50,
+                width: MediaQuery.of(context).size.width * .75,
               ),
             ),
             SizedBox(
@@ -187,11 +187,36 @@ class SecondScreen extends StatefulWidget {
 }
 
 class _SecondScreenState extends State<SecondScreen> {
+  InAppWebViewController? _controller;
+
+  final Completer<InAppWebViewController> _controllerCompleter =
+      Completer<InAppWebViewController>();
+
+  Future<bool> _exitApp(BuildContext context) async {
+    if (await _controller!.canGoBack()) {
+      print("onwill goback");
+      _controller!.goBack();
+    } else {
+      // Scaffold.of(context).showSnackBar(
+      //   const SnackBar(content: Text("No back history item")),
+      // );
+      return Future.value(false);
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: InAppWebView(
-        initialUrlRequest: URLRequest(url: Uri.parse(webViewInitUrl)),
+    return WillPopScope(
+      onWillPop: () => _exitApp(context),
+      child: SafeArea(
+        child: InAppWebView(
+          initialUrlRequest: URLRequest(url: Uri.parse(webViewInitUrl)),
+          onWebViewCreated: (InAppWebViewController webViewController) {
+            _controllerCompleter.future.then((value) => _controller = value);
+            _controllerCompleter.complete(webViewController);
+          },
+        ),
       ),
     );
   }
