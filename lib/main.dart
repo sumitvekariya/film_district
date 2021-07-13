@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:film_district/constants/const.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -17,6 +19,16 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
   print('Handling a background message ${message.messageId}');
+}
+
+Future<bool> checkConnectivity() async {
+  var connectivityResult = await (Connectivity().checkConnectivity());
+  if (connectivityResult == ConnectivityResult.mobile) {
+    return true;
+  } else if (connectivityResult == ConnectivityResult.wifi) {
+    return true;
+  }
+  return false;
 }
 
 /// Create a [AndroidNotificationChannel] for heads up notifications
@@ -34,9 +46,17 @@ FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  // Set the background messaging handler early on, as a named top-level function
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  NotificationSettings settings =
-      await FirebaseMessaging.instance.requestPermission(
+  /// Update the iOS foreground notification presentation options to allow
+  /// heads up notifications.
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+  await FirebaseMessaging.instance.requestPermission(
     alert: true,
     announcement: false,
     badge: true,
@@ -46,11 +66,14 @@ Future<void> main() async {
     sound: true,
   );
 
-  await FirebaseMessaging.instance
-      .subscribeToTopic('film_district_notification');
+  if (await checkConnectivity()) {
+    try {
+      await FirebaseMessaging.instance
+          .subscribeToTopic('film_district_notification');
 
-  // Set the background messaging handler early on, as a named top-level function
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+      print(await FirebaseMessaging.instance.getToken());
+    } catch (e) {}
+  }
 
   if (!kIsWeb) {
     /// Create an Android Notification Channel.
@@ -61,17 +84,7 @@ Future<void> main() async {
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()
         ?.createNotificationChannel(channel);
-
-    /// Update the iOS foreground notification presentation options to allow
-    /// heads up notifications.
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
   }
-  print(await FirebaseMessaging.instance.getToken());
   runApp(MyApp());
 }
 
@@ -142,42 +155,49 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     Timer(
-        Duration(seconds: 4),
+        Duration(seconds: 1),
         () => Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => SecondScreen())));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: MediaQuery.of(context).size.height * .10,
-            ),
-            Container(
-              margin: EdgeInsets.fromLTRB(0, 0, 40, 0),
-              child: Image(
-                image: AssetImage("images/fdd-rental-email-logo.png"),
-                // height: MediaQuery.of(context).size.height * .50,
-                width: MediaQuery.of(context).size.width * .75,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: Color(0xffececec)),
+        child: Scaffold(
+          body: Container(
+            color: Color(0xffececec),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * .10,
+                  ),
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0, 0, 40, 0),
+                    child: Image(
+                      image: AssetImage("images/fdd-rental-email-logo.png"),
+                      // height: MediaQuery.of(context).size.height * .50,
+                      width: MediaQuery.of(context).size.width * .75,
+                    ),
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * .50,
+                  ),
+                  Text(
+                    "Powered by The Watchtower",
+                    style: TextStyle(
+                        color: Color(0xFFE9442B), fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
             ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * .10,
-            ),
-            Text(
-              "Powered by The Watchtower",
-              style: TextStyle(
-                  color: Color(0xFFE9442B), fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ));
   }
 }
 
@@ -188,9 +208,13 @@ class SecondScreen extends StatefulWidget {
 
 class _SecondScreenState extends State<SecondScreen> {
   InAppWebViewController? _controller;
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
   final Completer<InAppWebViewController> _controllerCompleter =
       Completer<InAppWebViewController>();
+  var url = webViewInitUrl;
 
   Future<bool> _exitApp(BuildContext context) async {
     if (await _controller!.canGoBack()) {
@@ -200,24 +224,101 @@ class _SecondScreenState extends State<SecondScreen> {
       // Scaffold.of(context).showSnackBar(
       //   const SnackBar(content: Text("No back history item")),
       // );
-      return Future.value(false);
+      return Future.value(true);
     }
     return false;
   }
 
   @override
+  void initState() {
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+
+    super.dispose();
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initConnectivity() async {
+    late ConnectivityResult result;
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      print(e.toString());
+      return;
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => _exitApp(context),
-      child: SafeArea(
-        child: InAppWebView(
-          initialUrlRequest: URLRequest(url: Uri.parse(webViewInitUrl)),
-          onWebViewCreated: (InAppWebViewController webViewController) {
-            _controllerCompleter.future.then((value) => _controller = value);
-            _controllerCompleter.complete(webViewController);
-          },
-        ),
-      ),
-    );
+        onWillPop: () => _exitApp(context),
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent, // transparent status bar
+              // systemNavigationBarColor: Colors.black, // navigation bar color
+              // statusBarIconBrightness: Brightness.dark,
+              systemNavigationBarColor: Color(0xffececec)
+              // systemNavigationBarIconBrightness:
+              //     Brightness.dark, //navigation bar icons' color
+              ),
+          child: _connectionStatus == ConnectivityResult.none
+              ? Container(
+                  color: Colors.white,
+                  alignment: Alignment.center,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Container(
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            await initConnectivity();
+                          },
+                          child: const Text('Try Again'),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : Scaffold(
+                  body: SafeArea(
+                    top: false,
+                    child: InAppWebView(
+                      initialUrlRequest: URLRequest(url: Uri.parse(url)),
+                      onWebViewCreated:
+                          (InAppWebViewController webViewController) async {
+                        _controller = await _controllerCompleter.future;
+                        _controllerCompleter.complete(webViewController);
+                      },
+                      onLoadStart: (controller, uri) {
+                        url = uri.toString();
+                      },
+                    ),
+                  ),
+                ),
+        ));
   }
 }
