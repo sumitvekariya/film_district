@@ -154,10 +154,10 @@ class _MyHomePageState extends State<MyHomePage> {
       //     arguments: MessageArguments(message, true));
     });
 
-    Timer(
-        Duration(seconds: 1),
-        () => Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => SecondScreen())));
+    // Timer(
+    //     Duration(seconds: 1),
+    //     () => Navigator.pushReplacement(
+    //         context, MaterialPageRoute(builder: (context) => SecondScreen())));
   }
 
   @override
@@ -171,27 +171,31 @@ class _MyHomePageState extends State<MyHomePage> {
             color: Color(0xffececec),
             child: Center(
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                // crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * .10,
-                  ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 40, 0),
-                    child: Image(
-                      image: AssetImage("images/fdd-rental-email-logo.png"),
-                      // height: MediaQuery.of(context).size.height * .50,
-                      width: MediaQuery.of(context).size.width * .75,
+                  Expanded(
+                    flex: 7,
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(0, 0, 40, 0),
+                      child: Image(
+                        image: AssetImage("images/fdd-rental-logo.png"),
+                        // height: MediaQuery.of(context).size.height * .50,
+                        width: MediaQuery.of(context).size.width * .75,
+                      ),
                     ),
                   ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * .50,
-                  ),
-                  Text(
-                    "Powered by The Watchtower",
-                    style: TextStyle(
-                        color: Color(0xFFE9442B), fontWeight: FontWeight.bold),
+                  Expanded(
+                    flex: 0,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: 10),
+                      child: Text(
+                        "Powered by The Watchtower",
+                        style: TextStyle(
+                            color: Color(0xFFE9442B),
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
                   ),
                 ],
               ),
