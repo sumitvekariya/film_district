@@ -238,7 +238,11 @@ class _SecondScreenState extends State<SecondScreen> {
     initConnectivity();
 
     _connectivitySubscription =
-        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+        _connectivity.onConnectivityChanged.listen((connection) {
+      if (connection == ConnectivityResult.none) {
+        _updateConnectionStatus(connection);
+      }
+    });
     super.initState();
   }
 
