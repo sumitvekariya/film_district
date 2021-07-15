@@ -154,10 +154,10 @@ class _MyHomePageState extends State<MyHomePage> {
       //     arguments: MessageArguments(message, true));
     });
 
-    // Timer(
-    //     Duration(seconds: 1),
-    //     () => Navigator.pushReplacement(
-    //         context, MaterialPageRoute(builder: (context) => SecondScreen())));
+    Timer(
+        Duration(seconds: 1),
+        () => Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => SecondScreen())));
   }
 
   @override
